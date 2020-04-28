@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class PlayerCamera : MonoBehaviour
 {
-    [SerializeField] bool smooth;
+    [SerializeField] bool smooth = false;
     [SerializeField] float smoothTime = 5f;
-    [SerializeField] [Range(0, 1)] float XSensitivity;
-    [SerializeField] [Range(0, 1)] float YSensitivity;
-    [SerializeField] GameObject cameraGimble;
-    [SerializeField] Camera camera;
+    [SerializeField] [Range(0, 1)] float XSensitivity = 0.5f;
+    [SerializeField] [Range(0, 1)] float YSensitivity = 0.5f;
+    [SerializeField] GameObject cameraGimble = null;
+    [SerializeField] new Camera camera = null;
     InputMaster controls;
 
     public float MinimumX = -90F;
