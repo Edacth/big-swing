@@ -3055,6 +3055,11 @@ PrefabInstance:
       propertyPath: edgeWidth
       value: 0.04
       objectReference: {fileID: 0}
+    - target: {fileID: 538268456623534929, guid: 916d39585d78cdc49ad4147d36784e7c,
+        type: 3}
+      propertyPath: fallSpeed
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 538268456623534955, guid: 916d39585d78cdc49ad4147d36784e7c,
         type: 3}
       propertyPath: m_Name
