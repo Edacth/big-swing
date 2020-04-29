@@ -37,7 +37,10 @@ public class PlayerMovement : MonoBehaviour
         Vector3 forwardVector = playerCamera.ForwardVector;
         Vector3 rightVector = playerCamera.RightVector;
 
+        // Rotate the capsule
+        transform.eulerAngles = new Vector3(0, playerCamera.GimbleRotation.y, 0);
 
+        #region Movement
         // Calculate movementVector
         moveVector = Vector3.ProjectOnPlane
         (forwardVector * moveDirection.y * moveSpeed + rightVector * moveDirection.x * moveSpeed, Vector3.up);
@@ -45,10 +48,12 @@ public class PlayerMovement : MonoBehaviour
         // Detect if the rigidbody will collide with anything
         CapsuleP1 = new Vector3(rb.position.x, rb.position.y + 0.5f, rb.position.z);
         CapsuleP2 = new Vector3(rb.position.x, rb.position.y - 0.3f, rb.position.z);
+        int layerMask = 1 << 8;
+        layerMask = ~layerMask;
         Vector3 sweepDistance = new Vector3();
 
         RaycastHit sweepHitX;
-        if (Physics.CapsuleCast(CapsuleP1, CapsuleP2, 0.5f, new Vector3(moveVector.x, 0, 0), out sweepHitX, Mathf.Abs(moveVector.x)))
+        if (Physics.CapsuleCast(CapsuleP1, CapsuleP2, 0.5f, new Vector3(moveVector.x, 0, 0), out sweepHitX, Mathf.Abs(moveVector.x), layerMask))
         {
             sweepDistance.x = sweepHitX.point.x - rb.position.x >= 0 ? sweepHitX.distance : -sweepHitX.distance;
 
@@ -57,7 +62,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         RaycastHit sweepHitZ;
-        if (Physics.CapsuleCast(CapsuleP1, CapsuleP2, 0.5f, new Vector3(0, 0, moveVector.z), out sweepHitZ, Mathf.Abs(moveVector.z)))
+        if (Physics.CapsuleCast(CapsuleP1, CapsuleP2, 0.5f, new Vector3(0, 0, moveVector.z), out sweepHitZ, Mathf.Abs(moveVector.z), layerMask))
         {
             sweepDistance.z = sweepHitZ.point.z - rb.position.z >= 0 ? sweepHitZ.distance : -sweepHitZ.distance;
 
@@ -66,8 +71,8 @@ public class PlayerMovement : MonoBehaviour
         }
 
         RaycastHit sweepHitY;
-        Vector3 sphere = new Vector3(rb.position.x, rb.position.y - 0.45f, rb.position.z);
-        if (Physics.SphereCast(sphere, 0.5f, Vector3.down, out sweepHitY, 0.05f /*Mathf.Abs(moveVector.y)*/))
+        Vector3 sphere = new Vector3(rb.position.x, rb.position.y - 0.48f, rb.position.z);
+        if (Physics.SphereCast(sphere, 0.45f, Vector3.down, out sweepHitY, 0.2f /*Mathf.Abs(moveVector.y)*/, layerMask))
         {
             sweepDistance.y = sweepHitY.distance;
 
@@ -77,19 +82,29 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             moveVector.y = -fallSpeed;
+        }
+        
+        rb.MovePosition(transform.position + moveVector);
+        #endregion
+    }
 
+    private void OnDrawGizmos()
+    {
+        //Gizmos.DrawWireSphere(CapsuleP1 + new Vector3(moveVector.x, 0, 0), 0.5f);
+        //Gizmos.DrawWireSphere(CapsuleP2 + new Vector3(moveVector.x, 0, 0), 0.5f);
+        //Gizmos.DrawWireSphere(CapsuleP1 + new Vector3(0, 0, moveVector.z), 0.5f);
+        //Gizmos.DrawWireSphere(CapsuleP2 + new Vector3(0, 0, moveVector.z), 0.5f);
+        if (Application.isPlaying)
+        {
+            Vector3 sphereStart = new Vector3(rb.position.x, rb.position.y - 0.48f, rb.position.z);
+            Gizmos.DrawWireSphere(sphereStart, 0.45f);
+
+            Vector3 sphereEnd = new Vector3(rb.position.x, rb.position.y - 0.68f, rb.position.z);
+            Gizmos.DrawWireSphere(sphereEnd, 0.45f);
         }
         
 
-        rb.MovePosition(transform.position + moveVector);
-    }
 
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.DrawWireSphere(CapsuleP1 + new Vector3(moveVector.x, 0, 0), 0.5f);
-        Gizmos.DrawWireSphere(CapsuleP2 + new Vector3(moveVector.x, 0, 0), 0.5f);
-        Gizmos.DrawWireSphere(CapsuleP1 + new Vector3(0, 0, moveVector.z), 0.5f);
-        Gizmos.DrawWireSphere(CapsuleP2 + new Vector3(0, 0, moveVector.z), 0.5f);
     }
 
     private void OnEnable()

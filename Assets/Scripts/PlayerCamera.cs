@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerCamera : MonoBehaviour
 {
@@ -19,6 +20,9 @@ public class PlayerCamera : MonoBehaviour
     private Vector3 gimbleRot;
     private Vector3 gimbleTargRot;
 
+    bool cameraLocked;
+    Vector2 cachedMouseDelta;
+
     public Vector3 ForwardVector
     {
         get
@@ -26,7 +30,6 @@ public class PlayerCamera : MonoBehaviour
             return camera.transform.forward;
         }
     }
-
     public Vector3 RightVector
     {
         get
@@ -34,20 +37,42 @@ public class PlayerCamera : MonoBehaviour
             return camera.transform.right;
         }
     }
+    public Vector3 GimbleRotation
+    {
+        get
+        {
+            return gimbleRot;
+        }
+    }
 
     void Awake()
     {
         controls = new InputMaster();
+        controls.Player.LockCamera.performed += ctx => LockCamera(ctx);
+        controls.Player.UnlockCamera.performed += ctx => UnlockCamera(ctx);
+
+
         if (cameraGimble == null) { Debug.LogError("cameraGimble is null", this); }
         gimbleRot = cameraGimble.transform.localRotation.eulerAngles;
         gimbleTargRot = gimbleRot;
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update()
     {
-        Vector2 mouseDelta = (controls.Player.Look.ReadValue<Vector2>());
+        if (!cameraLocked)
+        {
+            Vector2 mouseDelta = (controls.Player.Look.ReadValue<Vector2>());
+            cachedMouseDelta += mouseDelta;
+        }  
+    }
 
-        gimbleTargRot += new Vector3(-mouseDelta.y * YSensitivity, mouseDelta.x * XSensitivity, 0);
+    private void FixedUpdate()
+    {
+        gimbleTargRot += new Vector3(-cachedMouseDelta.y * YSensitivity, cachedMouseDelta.x * XSensitivity, 0);
+        cachedMouseDelta = Vector2.zero;
         gimbleTargRot.x = Mathf.Clamp(gimbleTargRot.x, MinimumX, MaximumX);
 
         if (smooth)
@@ -71,5 +96,17 @@ public class PlayerCamera : MonoBehaviour
     private void OnDisable()
     {
         controls.Disable();
+    }
+
+    private void LockCamera(InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed) { return; }
+        cameraLocked = true;
+    }
+
+    private void UnlockCamera(InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed) { return; }
+        cameraLocked = false;
     }
 }

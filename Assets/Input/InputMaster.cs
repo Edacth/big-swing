@@ -41,6 +41,22 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""LockCamera"",
+                    ""type"": ""Button"",
+                    ""id"": ""9833d1ba-e695-4e8b-bd49-e2daf0324bf9"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""UnlockCamera"",
+                    ""type"": ""Button"",
+                    ""id"": ""5d45d9f1-2785-4def-b16b-539bbba37a0b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -261,6 +277,28 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": ""XR"",
                     ""action"": ""Fire"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""41b7cebd-37b1-4108-b340-94320fc563a0"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""LockCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bf1599ed-2837-49f3-aede-11f9c19431fe"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": ""Press(behavior=1)"",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""UnlockCamera"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -841,6 +879,8 @@ public class @InputMaster : IInputActionCollection, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
         m_Player_Fire = m_Player.FindAction("Fire", throwIfNotFound: true);
+        m_Player_LockCamera = m_Player.FindAction("LockCamera", throwIfNotFound: true);
+        m_Player_UnlockCamera = m_Player.FindAction("UnlockCamera", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -905,6 +945,8 @@ public class @InputMaster : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Look;
     private readonly InputAction m_Player_Fire;
+    private readonly InputAction m_Player_LockCamera;
+    private readonly InputAction m_Player_UnlockCamera;
     public struct PlayerActions
     {
         private @InputMaster m_Wrapper;
@@ -912,6 +954,8 @@ public class @InputMaster : IInputActionCollection, IDisposable
         public InputAction @Move => m_Wrapper.m_Player_Move;
         public InputAction @Look => m_Wrapper.m_Player_Look;
         public InputAction @Fire => m_Wrapper.m_Player_Fire;
+        public InputAction @LockCamera => m_Wrapper.m_Player_LockCamera;
+        public InputAction @UnlockCamera => m_Wrapper.m_Player_UnlockCamera;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -930,6 +974,12 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @Fire.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
                 @Fire.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
                 @Fire.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
+                @LockCamera.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLockCamera;
+                @LockCamera.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLockCamera;
+                @LockCamera.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnLockCamera;
+                @UnlockCamera.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnUnlockCamera;
+                @UnlockCamera.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnUnlockCamera;
+                @UnlockCamera.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnUnlockCamera;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -943,6 +993,12 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @Fire.started += instance.OnFire;
                 @Fire.performed += instance.OnFire;
                 @Fire.canceled += instance.OnFire;
+                @LockCamera.started += instance.OnLockCamera;
+                @LockCamera.performed += instance.OnLockCamera;
+                @LockCamera.canceled += instance.OnLockCamera;
+                @UnlockCamera.started += instance.OnUnlockCamera;
+                @UnlockCamera.performed += instance.OnUnlockCamera;
+                @UnlockCamera.canceled += instance.OnUnlockCamera;
             }
         }
     }
@@ -1102,6 +1158,8 @@ public class @InputMaster : IInputActionCollection, IDisposable
         void OnMove(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
         void OnFire(InputAction.CallbackContext context);
+        void OnLockCamera(InputAction.CallbackContext context);
+        void OnUnlockCamera(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {
