@@ -29,6 +29,7 @@ public class PlayerSwing : MonoBehaviour
     Vector3[] globalBoxCorners;
     bool cameraLocked;
     Vector2 cachedMouseDelta;
+    bool weaponExtended;
 
     private void Awake()
     {
@@ -36,6 +37,7 @@ public class PlayerSwing : MonoBehaviour
         controls.Player.LockCamera.performed += ctx => LockCamera(ctx);
         controls.Player.UnlockCamera.performed += ctx => UnlockCamera(ctx);
         controls.Player.SetTargetWeaponPosition.performed += ctx => SetTargetWeaponPosition(ctx);
+        controls.Player.ToggleWeaponExtension.performed += ctx => ToggleWeaponExtension(ctx);
     }
 
     void Start()
@@ -43,6 +45,9 @@ public class PlayerSwing : MonoBehaviour
         targetWeaponPos = new Vector2(0, 0);
         weaponPos = targetWeaponPos;
         globalBoxCorners = new Vector3[4];
+        weaponExtended = true;
+        if (weaponExtended) { ExtendWeapon(); }
+        else { RetractWeapon(); }
     }
 
     void Update()
@@ -128,5 +133,25 @@ public class PlayerSwing : MonoBehaviour
     {
         if (!ctx.performed) { return; }
         targetWeaponPos = cursorPos;
+    }
+
+    private void ToggleWeaponExtension(InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed) { return; }
+        weaponExtended = !weaponExtended;
+        if (weaponExtended) { ExtendWeapon(); }
+        else { RetractWeapon(); }
+    }
+
+    private void ExtendWeapon()
+    {
+        //Debug.Log("Extend");
+        weaponObject.localEulerAngles = new Vector3(0, weaponObject.localEulerAngles.y, weaponObject.localEulerAngles.z);
+    }
+
+    private void RetractWeapon()
+    {
+        //Debug.Log("Retract");
+        weaponObject.localEulerAngles = new Vector3(-90, weaponObject.localEulerAngles.y, weaponObject.localEulerAngles.z);
     }
 }

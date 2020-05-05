@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Dummy : Enemy
 {
@@ -18,6 +19,9 @@ public class Dummy : Enemy
 
     [SerializeField] STATES current = default;
 
+    InputMaster controls;
+    Rigidbody rb = null;
+
     void Awake()
     {
         HitboxSetup();
@@ -31,12 +35,20 @@ public class Dummy : Enemy
         stateDict.Add(STATES.waiting, waitingState);
         stateDict.Add(STATES.recoiling, recoilingState);
         #endregion
-
+        controls = new InputMaster();
+        rb = transform.Find("Cube").GetComponent<Rigidbody>();
     }
 
     void Update()
     {
         stateDict[current].StateUpdate();
+        Keyboard kb = InputSystem.GetDevice<Keyboard>();
+        if (kb.pKey.wasPressedThisFrame)
+        {
+            //Debug.Log("Jump");
+            //rb.MovePosition(rb.position + Vector3.forward * 4);
+            rb.AddForce(Vector3.up * 100);
+        }
     }
 
     private void FixedUpdate()
