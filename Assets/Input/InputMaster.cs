@@ -57,6 +57,14 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""SetTargetWeaponPosition"",
+                    ""type"": ""Button"",
+                    ""id"": ""d9b2d21f-6f22-4f74-9128-8f8923971ff9"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -299,6 +307,17 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""UnlockCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ddbfc68c-6dba-49cd-9cf4-4f5f506fe76d"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""SetTargetWeaponPosition"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -881,6 +900,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         m_Player_Fire = m_Player.FindAction("Fire", throwIfNotFound: true);
         m_Player_LockCamera = m_Player.FindAction("LockCamera", throwIfNotFound: true);
         m_Player_UnlockCamera = m_Player.FindAction("UnlockCamera", throwIfNotFound: true);
+        m_Player_SetTargetWeaponPosition = m_Player.FindAction("SetTargetWeaponPosition", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -947,6 +967,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_Fire;
     private readonly InputAction m_Player_LockCamera;
     private readonly InputAction m_Player_UnlockCamera;
+    private readonly InputAction m_Player_SetTargetWeaponPosition;
     public struct PlayerActions
     {
         private @InputMaster m_Wrapper;
@@ -956,6 +977,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         public InputAction @Fire => m_Wrapper.m_Player_Fire;
         public InputAction @LockCamera => m_Wrapper.m_Player_LockCamera;
         public InputAction @UnlockCamera => m_Wrapper.m_Player_UnlockCamera;
+        public InputAction @SetTargetWeaponPosition => m_Wrapper.m_Player_SetTargetWeaponPosition;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -980,6 +1002,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @UnlockCamera.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnUnlockCamera;
                 @UnlockCamera.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnUnlockCamera;
                 @UnlockCamera.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnUnlockCamera;
+                @SetTargetWeaponPosition.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSetTargetWeaponPosition;
+                @SetTargetWeaponPosition.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSetTargetWeaponPosition;
+                @SetTargetWeaponPosition.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnSetTargetWeaponPosition;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -999,6 +1024,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @UnlockCamera.started += instance.OnUnlockCamera;
                 @UnlockCamera.performed += instance.OnUnlockCamera;
                 @UnlockCamera.canceled += instance.OnUnlockCamera;
+                @SetTargetWeaponPosition.started += instance.OnSetTargetWeaponPosition;
+                @SetTargetWeaponPosition.performed += instance.OnSetTargetWeaponPosition;
+                @SetTargetWeaponPosition.canceled += instance.OnSetTargetWeaponPosition;
             }
         }
     }
@@ -1160,6 +1188,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         void OnFire(InputAction.CallbackContext context);
         void OnLockCamera(InputAction.CallbackContext context);
         void OnUnlockCamera(InputAction.CallbackContext context);
+        void OnSetTargetWeaponPosition(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

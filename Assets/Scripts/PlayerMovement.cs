@@ -120,6 +120,5 @@ public class PlayerMovement : MonoBehaviour
     public void TestInput(InputAction.CallbackContext ctx)
     {
         if (!ctx.performed) { return; }
-        Debug.Log("CLick!");
     }
 }
