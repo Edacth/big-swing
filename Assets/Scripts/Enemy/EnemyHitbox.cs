@@ -6,8 +6,7 @@ public class EnemyHitbox : MonoBehaviour
 {
     public delegate void Triggered(HitInfo _info);
     public Triggered triggered = null;
-    [SerializeField]
-    public string Name;
+    [SerializeField] public string Name;
 
     private void OnTriggerEnter(Collider other)
     {

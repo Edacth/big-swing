@@ -10,7 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2601456899230974936}
   - component: {fileID: 2601456899230974937}
-  m_Layer: 0
+  - component: {fileID: 1343234770}
+  - component: {fileID: 1343234771}
+  m_Layer: 11
   m_Name: Dummy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,8 +47,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1339b346448c13d4eae4846f21acaf75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  toughboxes: []
   hitboxes:
   - {fileID: 2601456899858815070}
+  current: 0
+--- !u!54 &1343234770
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2601456899230974939}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0
+--- !u!136 &1343234771
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2601456899230974939}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2601456899316546000
 GameObject:
   m_ObjectHideFlags: 0
@@ -58,9 +92,10 @@ GameObject:
   - component: {fileID: 2601456899316546001}
   - component: {fileID: 2601456899316546004}
   - component: {fileID: 2601456899316546007}
+  - component: {fileID: 8876500652380850354}
   - component: {fileID: 2601456899316546006}
-  m_Layer: 0
-  m_Name: Cube
+  m_Layer: 10
+  m_Name: ToughBox0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -127,6 +162,19 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &8876500652380850354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2601456899316546000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc2a209c553ab8d45b750a0f89a5ae2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: Body
 --- !u!65 &2601456899316546006
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -135,7 +183,7 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2601456899316546000}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
@@ -153,7 +201,7 @@ GameObject:
   - component: {fileID: 2601456899858815064}
   - component: {fileID: 2601456899858815067}
   - component: {fileID: 2601456899858815070}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Hitbox0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -168,7 +216,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2601456899858815061}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.049, z: -0.632}
+  m_LocalPosition: {x: 0, y: 0.049, z: -1.72}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_Children: []
   m_Father: {fileID: 2601456899230974936}
@@ -246,3 +294,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a9125a31f7f0044b9b7ac0434175966, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Name: Armpit

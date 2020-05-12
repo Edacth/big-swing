@@ -93,8 +93,6 @@ public class PlayerSwing : MonoBehaviour
             cursorPos.y = Mathf.Clamp(cursorPos.y, -boundingBox.y * 0.5f, boundingBox.y * 0.5f);
             cachedMouseDelta = Vector2.zero;
 
-
-
             // Update the UI
             boundingBoxUI.SetCursorPosition(new Vector2(CMath.Map(cursorPos.x, -boundingBox.x / 2, boundingBox.x / 2, -1, 1), CMath.Map(cursorPos.y, -boundingBox.y / 2, boundingBox.y / 2, -1, 1)));
             boundingBoxUI.SetTargetWeaponPosition(new Vector2(CMath.Map(targetWeaponPos.x, -boundingBox.x / 2, boundingBox.x / 2, -1, 1), CMath.Map(targetWeaponPos.y, -boundingBox.y / 2, boundingBox.y / 2, -1, 1)));
@@ -104,7 +102,6 @@ public class PlayerSwing : MonoBehaviour
             weaponPos = Vector2.MoveTowards(weaponPos, targetWeaponPos, weaponFollowSpeed);
             weaponObject.localPosition = new Vector3(weaponPos.x, weaponPos.y, 0);
         }
-        
     }
 
     private void OnEnable()

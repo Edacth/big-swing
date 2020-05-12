@@ -36,7 +36,7 @@ public class Dummy : Enemy
         stateDict.Add(STATES.recoiling, recoilingState);
         #endregion
         controls = new InputMaster();
-        rb = transform.Find("Cube").GetComponent<Rigidbody>();
+        rb = transform.GetComponent<Rigidbody>();
     }
 
     void Update()

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    [SerializeField] EnemyToughbox[] toughboxes = null;
     [SerializeField] EnemyHitbox[] hitboxes = null;
 
     protected virtual void OnHitboxTrigger(HitInfo info) { }
