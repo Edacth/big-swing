@@ -1,13 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BoundingBoxUI : MonoBehaviour
 {
+    [SerializeField] Sprite canSwingIndicatorSprite = null;
+    [SerializeField] Sprite emptySprite = null;
+
     RectTransform boundBox;
     RectTransform weaponDot;
     RectTransform targetWeaponDot;
-    RectTransform CursorDot;
+    RectTransform cursorDot;
+    Image canSwingIndicator;
 
     Vector2 dotPos;
 
@@ -16,9 +21,10 @@ public class BoundingBoxUI : MonoBehaviour
         boundBox = transform.Find("BoundingBox").GetComponent<RectTransform>();
         weaponDot = boundBox.Find("WeaponDot").GetComponent<RectTransform>();
         targetWeaponDot = boundBox.Find("TargetWeaponDot").GetComponent<RectTransform>();
-        CursorDot = boundBox.Find("CursorDot").GetComponent<RectTransform>();
+        cursorDot = boundBox.Find("CursorDot").GetComponent<RectTransform>();
+        canSwingIndicator = boundBox.Find("CanSwingIndicator").GetComponent<Image>();
 
-        CursorDot.gameObject.SetActive(false);
+        cursorDot.gameObject.SetActive(false);
     }
 
     public void SetWeaponPosition(Vector2 _position)
@@ -39,11 +45,23 @@ public class BoundingBoxUI : MonoBehaviour
 
     public void SetCursorPosition(Vector2 _position)
     {
-        if (!CursorDot.gameObject.activeSelf) { CursorDot.gameObject.SetActive(true); }
+        if (!cursorDot.gameObject.activeSelf) { cursorDot.gameObject.SetActive(true); }
 
         Vector2 newPos = new Vector2();
         newPos.x = CMath.Map(_position.x, -1, 1, -70, 70);
         newPos.y = CMath.Map(_position.y, -1, 1, -70, 70);
-        CursorDot.anchoredPosition = newPos;
+        cursorDot.anchoredPosition = newPos;
+    }
+
+    public void SetCanSwingIndicator(bool _canSwing)
+    {
+        if (_canSwing)
+        {
+            canSwingIndicator.sprite = canSwingIndicatorSprite;
+        }
+        else
+        {
+            canSwingIndicator.sprite = emptySprite;
+        }
     }
 }

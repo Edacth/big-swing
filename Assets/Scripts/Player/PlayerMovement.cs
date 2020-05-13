@@ -5,13 +5,15 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] [Range(0,1)] float moveSpeed = 0.2f;
+    [SerializeField] [Range(0,1)] float defaultMoveSpeed = 0.11f;
+    [SerializeField] [Range(0,1)] float swingingMoveSpeed = 0.09f;
     [SerializeField] [Range(0,1)] float fallSpeed = 0.2f;
     [Tooltip("How much space should be kept between the collider and the environment")]
     [SerializeField] [Range(0, 0.08f)] float edgeWidth = 0.04f;
     [SerializeField] PlayerCamera playerCamera = null;
     InputMaster controls;
     Rigidbody rb;
+    PlayerSwing playerSwing;
     Vector2 moveDirection;
     Vector3 moveVector;
     Vector3 CapsuleP1;
@@ -20,6 +22,7 @@ public class PlayerMovement : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        playerSwing = GetComponent<PlayerSwing>();
         controls = new InputMaster();
         controls.Player.Fire.performed += ctx => TestInput(ctx);
     }
@@ -42,8 +45,16 @@ public class PlayerMovement : MonoBehaviour
 
         #region Movement
         // Calculate movementVector
+        if (playerSwing.IsSwinging)
+        {
+            moveVector = Vector3.ProjectOnPlane
+        (forwardVector * moveDirection.y * swingingMoveSpeed + rightVector * moveDirection.x * swingingMoveSpeed, Vector3.up);
+        }
+        else
+        {
         moveVector = Vector3.ProjectOnPlane
-        (forwardVector * moveDirection.y * moveSpeed + rightVector * moveDirection.x * moveSpeed, Vector3.up);
+        (forwardVector * moveDirection.y * defaultMoveSpeed + rightVector * moveDirection.x * defaultMoveSpeed, Vector3.up);
+        }
 
         // Detect if the rigidbody will collide with anything
         CapsuleP1 = new Vector3(rb.position.x, rb.position.y + 0.5f, rb.position.z);
@@ -108,7 +119,6 @@ public class PlayerMovement : MonoBehaviour
     {
         controls.Enable();
     }
-
     private void OnDisable()
     {
         controls.Disable();

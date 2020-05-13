@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using BoxType;
 
 enum COMBATTYPE
 {
@@ -19,17 +20,28 @@ public class PlayerSwing : MonoBehaviour
     [SerializeField] [Range(0,2)] float boxForwardDist = 0.7f;
     [SerializeField] [Range(0, 0.02f)] float mouseSensitivity = 0.01f;
     [Tooltip("How quickly the weapon position moves towards the target position")]
-    [SerializeField] [Range(0, 1)] float weaponFollowSpeed = 1f;
+    [SerializeField] [Range(0, 1)] float weaponFollowSpeed = 0.15f;
+    [SerializeField] [Range(0, 1)] float weaponReboundSpeed = 0.20f;
     [SerializeField] BoundingBoxUI boundingBoxUI = null;
     InputMaster controls;
 
     Vector2 cursorPos;
     Vector2 targetWeaponPos;
+    Vector2 swingStartPos;
     Vector2 weaponPos;
     Vector3[] globalBoxCorners;
     bool cameraLocked;
     Vector2 cachedMouseDelta;
+    bool canStartSwing;
+    public bool IsSwinging { get; private set; }
     bool weaponExtended;
+    PlayerWeaponBox weaponBox;
+    BOXTYPE collisionType;
+
+    AudioSource audioSource;
+    [SerializeField] AudioClip goodHit;
+    [SerializeField] AudioClip metalHit;
+
 
     private void Awake()
     {
@@ -38,6 +50,11 @@ public class PlayerSwing : MonoBehaviour
         controls.Player.UnlockCamera.performed += ctx => UnlockCamera(ctx);
         controls.Player.SetTargetWeaponPosition.performed += ctx => SetTargetWeaponPosition(ctx);
         controls.Player.ToggleWeaponExtension.performed += ctx => ToggleWeaponExtension(ctx);
+
+        weaponBox = weaponObject.GetComponentInChildren<PlayerWeaponBox>();
+        weaponBox.triggered += OnHitEnemy;
+
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Start()
@@ -45,9 +62,14 @@ public class PlayerSwing : MonoBehaviour
         targetWeaponPos = new Vector2(0, 0);
         weaponPos = targetWeaponPos;
         globalBoxCorners = new Vector3[4];
-        weaponExtended = true;
+        weaponExtended = false;
+        canStartSwing = true;
         if (weaponExtended) { ExtendWeapon(); }
         else { RetractWeapon(); }
+
+        collisionType = BOXTYPE.None;
+
+        weaponObject.localPosition = new Vector3(weaponPos.x, weaponPos.y, 0);
     }
 
     void Update()
@@ -88,6 +110,7 @@ public class PlayerSwing : MonoBehaviour
         }
         else if (combatType == COMBATTYPE.SetTarget)
         {
+            // Move the cursor
             cursorPos += cachedMouseDelta * mouseSensitivity;
             cursorPos.x = Mathf.Clamp(cursorPos.x, -boundingBox.x * 0.5f, boundingBox.x * 0.5f);
             cursorPos.y = Mathf.Clamp(cursorPos.y, -boundingBox.y * 0.5f, boundingBox.y * 0.5f);
@@ -98,9 +121,37 @@ public class PlayerSwing : MonoBehaviour
             boundingBoxUI.SetTargetWeaponPosition(new Vector2(CMath.Map(targetWeaponPos.x, -boundingBox.x / 2, boundingBox.x / 2, -1, 1), CMath.Map(targetWeaponPos.y, -boundingBox.y / 2, boundingBox.y / 2, -1, 1)));
             boundingBoxUI.SetWeaponPosition(new Vector2(CMath.Map(weaponPos.x, -boundingBox.x / 2, boundingBox.x / 2, -1, 1), CMath.Map(weaponPos.y, -boundingBox.y / 2, boundingBox.y / 2, -1, 1)));
 
-            // Move the object
-            weaponPos = Vector2.MoveTowards(weaponPos, targetWeaponPos, weaponFollowSpeed);
-            weaponObject.localPosition = new Vector3(weaponPos.x, weaponPos.y, 0);
+            
+            if (IsSwinging)
+            {
+                // Move the weapon
+                weaponPos = Vector2.MoveTowards(weaponPos, targetWeaponPos, collisionType == BOXTYPE.Toughbox ? weaponReboundSpeed : weaponFollowSpeed);
+                weaponObject.localPosition = new Vector3(weaponPos.x, weaponPos.y, 0);                
+
+                if (Vector2.Distance(weaponPos, targetWeaponPos) < 0.05f)
+                {
+                    IsSwinging = false;
+                    weaponExtended = false;
+                    RetractWeapon();
+                    canStartSwing = true;
+                    boundingBoxUI.SetCanSwingIndicator(true);
+                    collisionType = BOXTYPE.None;
+                }
+            }
+
+
+            // Rotate the weapon
+            Vector3 newRot = Vector3.zero;
+            newRot.y = CMath.Map(weaponPos.x, -boundingBox.x / 2, boundingBox.x / 2, -40, 40);
+            // TODO: This causes asserts because zero division
+            if (/*Vector2.Distance(weaponPos, cursorPos) > 0.05*/ weaponPos - cursorPos != Vector2.zero)
+            {
+                newRot.z = CMath.Vec2ToRot(weaponPos - cursorPos) + 90;
+            }
+            weaponObject.localEulerAngles = newRot;
+            Debug.Log(newRot);
+
+            Debug.DrawRay(weaponBase.position, (cursorPos - weaponPos).normalized * 2, Color.red);
         }
     }
 
@@ -108,7 +159,6 @@ public class PlayerSwing : MonoBehaviour
     {
         controls.Enable();
     }
-
     private void OnDisable()
     {
         controls.Disable();
@@ -119,7 +169,6 @@ public class PlayerSwing : MonoBehaviour
         if (!ctx.performed) { return; }
         cameraLocked = true;
     }
-
     private void UnlockCamera(InputAction.CallbackContext ctx)
     {
         if (!ctx.performed) { return; }
@@ -129,7 +178,14 @@ public class PlayerSwing : MonoBehaviour
     private void SetTargetWeaponPosition(InputAction.CallbackContext ctx)
     {
         if (!ctx.performed) { return; }
+        if (!canStartSwing) { return; }
         targetWeaponPos = cursorPos;
+        swingStartPos = weaponPos;
+        IsSwinging = true;
+        weaponExtended = true;
+        ExtendWeapon();
+        canStartSwing = false;
+        boundingBoxUI.SetCanSwingIndicator(false);
     }
 
     private void ToggleWeaponExtension(InputAction.CallbackContext ctx)
@@ -142,13 +198,33 @@ public class PlayerSwing : MonoBehaviour
 
     private void ExtendWeapon()
     {
-        //Debug.Log("Extend");
-        weaponObject.localEulerAngles = new Vector3(0, weaponObject.localEulerAngles.y, weaponObject.localEulerAngles.z);
+        //weaponObject.localEulerAngles = new Vector3(0, weaponObject.localEulerAngles.y, weaponObject.localEulerAngles.z);
+        weaponBox.TriggerEnabled = true;
     }
-
     private void RetractWeapon()
     {
-        //Debug.Log("Retract");
-        weaponObject.localEulerAngles = new Vector3(-90, weaponObject.localEulerAngles.y, weaponObject.localEulerAngles.z);
+        //weaponObject.localEulerAngles = new Vector3(-90, weaponObject.localEulerAngles.y, weaponObject.localEulerAngles.z);
+        weaponBox.TriggerEnabled = false;
+    }
+
+    private void OnHitEnemy(TriggerInfo _triggerInfo)
+    {
+        if (!weaponExtended || collisionType == BOXTYPE.Hitbox) { return; } // Return if weapon is not extended or sword has already hit a hitbox
+        collisionType = _triggerInfo.boxType;
+        
+        switch (collisionType)
+        {
+            case BOXTYPE.None:
+                break;
+            case BOXTYPE.Hitbox:
+                audioSource.PlayOneShot(goodHit);
+                break;
+            case BOXTYPE.Toughbox:
+                targetWeaponPos = swingStartPos;
+                audioSource.PlayOneShot(metalHit);
+                break;
+            default:
+                break;
+        }
     }
 }

@@ -6,7 +6,7 @@ TagManager:
   tags:
   - Weapon
   - Hitbox
-  - Blockbox
+  - Toughbox
   layers:
   - Default
   - TransparentFX

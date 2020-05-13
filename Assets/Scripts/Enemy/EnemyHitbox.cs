@@ -8,14 +8,11 @@ public class EnemyHitbox : MonoBehaviour
     public Triggered triggered = null;
     [SerializeField] public string Name;
 
-    private void OnTriggerEnter(Collider other)
+    public void RecieveHit(WeaponInfo weaponInfo)
     {
-        if (other.CompareTag("Weapon"))
-        {
-            HitInfo info = new HitInfo(Name);
+        HitInfo info = new HitInfo(Name);
 
-            triggered?.Invoke(info);
-        }
+        triggered?.Invoke(info);
     }
 }
 
