@@ -10,7 +10,7 @@ public class EnemyHitbox : MonoBehaviour
 
     public void RecieveHit(WeaponInfo weaponInfo)
     {
-        HitInfo info = new HitInfo(Name);
+        HitInfo info = new HitInfo(Name, weaponInfo.attackerPos);
 
         triggered?.Invoke(info);
     }
@@ -18,10 +18,12 @@ public class EnemyHitbox : MonoBehaviour
 
 public struct HitInfo
 {
-    public HitInfo(string _name)
+    public HitInfo(string _name, Vector3 _attackerPos)
     {
         sourceBox = _name;
+        attackerPos = _attackerPos;
     }
 
     public string sourceBox;
+    public Vector3 attackerPos;
 }

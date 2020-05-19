@@ -17,7 +17,7 @@ public class PlayerSwing : MonoBehaviour
     [SerializeField] Transform weaponObject = null;
     [SerializeField] Vector2 boundingBox = new Vector2(2f, 2f);
     [Tooltip("How far in front of the character the weapon box should be")]
-    [SerializeField] [Range(0,2)] float boxForwardDist = 0.7f;
+    //[SerializeField] [Range(0,2)] float boxForwardDist = 0.7f; // Uncomment this when I'm ready to implement it
     [SerializeField] [Range(0, 0.02f)] float mouseSensitivity = 0.01f;
     [Tooltip("How quickly the weapon position moves towards the target position")]
     [SerializeField] [Range(0, 1)] float weaponFollowSpeed = 0.15f;
@@ -37,10 +37,12 @@ public class PlayerSwing : MonoBehaviour
     bool weaponExtended;
     PlayerWeaponBox weaponBox;
     BOXTYPE collisionType;
+    ParticleSystem swordTrail;
+    ParticleSystem sparks;
 
     AudioSource audioSource;
-    [SerializeField] AudioClip goodHit;
-    [SerializeField] AudioClip metalHit;
+    [SerializeField] AudioClip goodHit = null;
+    [SerializeField] AudioClip metalHit = null;
 
 
     private void Awake()
@@ -55,6 +57,8 @@ public class PlayerSwing : MonoBehaviour
         weaponBox.triggered += OnHitEnemy;
 
         audioSource = GetComponent<AudioSource>();
+        swordTrail = weaponObject.Find("Blade").Find("vfx_SwordTrail").GetComponent<ParticleSystem>();
+        sparks = weaponObject.Find("Blade").Find("vfx_Sparks").GetComponent<ParticleSystem>();
     }
 
     void Start()
@@ -68,7 +72,7 @@ public class PlayerSwing : MonoBehaviour
         else { RetractWeapon(); }
 
         collisionType = BOXTYPE.None;
-
+        weaponBox.Init(transform);
         weaponObject.localPosition = new Vector3(weaponPos.x, weaponPos.y, 0);
     }
 
@@ -132,6 +136,8 @@ public class PlayerSwing : MonoBehaviour
                 {
                     IsSwinging = false;
                     weaponExtended = false;
+                    //swordTrailEmission.enabled = false;
+                    swordTrail.Stop();
                     RetractWeapon();
                     canStartSwing = true;
                     boundingBoxUI.SetCanSwingIndicator(true);
@@ -149,7 +155,7 @@ public class PlayerSwing : MonoBehaviour
                 newRot.z = CMath.Vec2ToRot(weaponPos - cursorPos) + 90;
             }
             weaponObject.localEulerAngles = newRot;
-            Debug.Log(newRot);
+            //Debug.Log(newRot);
 
             Debug.DrawRay(weaponBase.position, (cursorPos - weaponPos).normalized * 2, Color.red);
         }
@@ -183,6 +189,8 @@ public class PlayerSwing : MonoBehaviour
         swingStartPos = weaponPos;
         IsSwinging = true;
         weaponExtended = true;
+        //swordTrailEmission.enabled = true;
+        swordTrail.Play();
         ExtendWeapon();
         canStartSwing = false;
         boundingBoxUI.SetCanSwingIndicator(false);
@@ -222,6 +230,7 @@ public class PlayerSwing : MonoBehaviour
             case BOXTYPE.Toughbox:
                 targetWeaponPos = swingStartPos;
                 audioSource.PlayOneShot(metalHit);
+                sparks.Play();
                 break;
             default:
                 break;

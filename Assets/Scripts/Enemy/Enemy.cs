@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    [SerializeField] EnemyToughbox[] toughboxes = null;
+    // [SerializeField] EnemyToughbox[] toughboxes = null; // Uncomment this when I'm ready to implement it
     [SerializeField] EnemyHitbox[] hitboxes = null;
 
     protected virtual void OnHitboxTrigger(HitInfo info) { }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -20,7 +21,13 @@ public class Dummy : Enemy
     [SerializeField] STATES current = default;
 
     InputMaster controls;
+    Vector3 locamotionVel;
+    float maxLocamotionSpeed;
+    Vector3 influenceVel;
+    [Tooltip("How much to multiply the influence by each tick to dampen it")]
+    float influenceDampening;
     Rigidbody rb = null;
+    [SerializeField] Transform target = null;
 
     void Awake()
     {
@@ -39,6 +46,15 @@ public class Dummy : Enemy
         rb = transform.GetComponent<Rigidbody>();
     }
 
+    private void Start()
+    {
+        locamotionVel = new Vector3();
+        maxLocamotionSpeed = 0.05f;
+        influenceVel = new Vector3();
+        influenceDampening = 0.8f;
+
+    }
+
     void Update()
     {
         stateDict[current].StateUpdate();
@@ -54,6 +70,21 @@ public class Dummy : Enemy
     private void FixedUpdate()
     {
         stateDict[current].StateFixedUpdate();
+        Move();
+    }
+
+    public void Move()
+    {
+        if (target != null)
+        {
+            Vector3 towardsTarget = (target.position - rb.position).normalized;
+            Debug.DrawRay(rb.position, towardsTarget * 2, Color.red);
+            locamotionVel = towardsTarget * maxLocamotionSpeed;
+        }
+        
+
+        rb.MovePosition(rb.position + locamotionVel + influenceVel);
+        influenceVel *= influenceDampening;
     }
 
     protected override void OnHitboxTrigger(HitInfo info)
@@ -62,6 +93,8 @@ public class Dummy : Enemy
         if (current == STATES.waiting)
         {
             waitingState.OnHit();
+            Vector3 impactVel = (transform.position - info.attackerPos).normalized;
+            influenceVel += impactVel;
         }
     }
 
@@ -105,7 +138,7 @@ class WaitingState : State
 
 class RecoilingState : State
 {
-    float recoilLength = 3f;
+    float recoilLength = 1f;
     float recoilTime;
 
     Quaternion targetRotQuat;
